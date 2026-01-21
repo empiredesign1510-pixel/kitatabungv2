@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>KITA TABUNG</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  
+  <div class="download-bar">
+  <div class="text-info">
+    <span>Pasang <b>KITA TABUNG</b> sekarang!</span>
+    <small>Versi 1.0 • Gratis</small>
+  </div>
+  <a href="app-v1.apk" class="btn-sticky" download>Install</a>
+</div>
+
+<style>
+  .download-bar {
+    position: fixed;
+    bottom: 80px; /* Di atas menu navigasi bawah */
+    left: 10px;
+    right: 10px;
+    background: white;
+    padding: 10px 15px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1000;
+    font-family: sans-serif;
+  }
+
+  .text-info {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .text-info span { font-size: 14px; color: #333; }
+  .text-info small { font-size: 11px; color: #888; }
+
+  .btn-sticky {
+    background-color: #000;
+    color: white;
+    padding: 8px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 13px;
+  }
+</style>
+
+  
+
+  <style>
+    :root {
+      --primary: #ff4081;
+      --bg: #f4f7f6;
+      --white: #ffffff;
+      --text: #333;
+      --gray: #777;
+      --shadow: 0 4px 15px rgba(0,0,0,0.05);
+      --radius: 16px;
+    }
+
+    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); margin: 0; padding: 0; padding-bottom: 90px; color: var(--text); user-select: none; -webkit-tap-highlight-color: transparent; }
+    * { box-sizing: border-box; outline: none; }
+
+    .header { background: var(--primary); color: white; padding: 18px; text-align: center; position: sticky; top: 0; z-index: 50; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .header h3 { margin: 0; font-size: 1.1rem; }
+
+    .nav { position: fixed; bottom: 0; width: 100%; background: var(--white); display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #eee; z-index: 100; }
+    .nav-btn { background: none; border: none; font-size: 0.7rem; color: var(--gray); display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+    .nav-btn i { font-size: 1.4rem; margin-bottom: 4px; }
+    .nav-btn.active { color: var(--primary); }
+
+    .view { display: none; padding: 20px; animation: fadeIn 0.3s; }
+    .view.active { display: block; }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+    .card { background: var(--white); padding: 20px; border-radius: var(--radius); margin-bottom: 15px; box-shadow: var(--shadow); }
+
+    .tabs { display: flex; gap: 10px; background: var(--white); padding: 8px; border-radius: 12px; margin-bottom: 20px; box-shadow: var(--shadow); }
+    .tab-btn { flex: 1; padding: 10px; border: none; background: #f0f0f0; border-radius: 8px; font-weight: bold; color: #666; cursor: pointer; transition: 0.3s; }
+    .tab-btn.active { background: var(--primary); color: white; }
+
+    .chart-box { position: relative; height: 260px; display: flex; align-items: center; justify-content: center; }
+    .chart-err { position: absolute; color: var(--gray); text-align: center; font-size: 0.8rem; padding: 0 20px; }
+
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .stat-item { text-align: center; padding: 15px; }
+    .stat-label { font-size: 0.8rem; color: var(--gray); margin-bottom: 5px; display: block; }
+    .stat-val { font-size: 1.1rem; font-weight: bold; }
+    .inc { color: #2ecc71; } .exp { color: #e74c3c; }
+
+    .tx-list { display: flex; flex-direction: column; gap: 12px; }
+    .date-head { font-size: 0.85rem; font-weight: bold; color: var(--gray); margin-top: 10px; }
+    .tx-item { background: var(--white); padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); border-left: 5px solid #ccc; }
+    .tx-item.income { border-left-color: #2ecc71; }
+    .tx-item.expense { border-left-color: #e74c3c; }
+    .tx-left h4 { margin: 0; font-size: 0.95rem; }
+    .tx-left span { font-size: 0.75rem; background: #eee; padding: 2px 6px; border-radius: 4px; color: #666; }
+    .tx-right { text-align: right; }
+    .tx-amt { font-weight: bold; font-size: 1rem; }
+    .tx-acts { margin-top: 5px; }
+    .btn-act { background: none; border: none; font-size: 1rem; padding: 5px; cursor: pointer; margin-left: 8px; }
+
+    .acc-grid { display: grid; gap: 15px; }
+    .acc-card { background: var(--primary); color: white; padding: 20px; border-radius: 16px; position: relative; overflow: hidden; box-shadow: var(--shadow); }
+    .acc-bal { font-size: 1.6rem; font-weight: bold; margin-top: 5px; }
+    .acc-icon { position: absolute; right: 15px; bottom: 15px; font-size: 3.5rem; opacity: 0.2; }
+
+    .color-grid { display: flex; justify-content: center; gap: 15px; margin-top: 15px; flex-wrap: wrap; }
+    .color-dot { width: 45px; height: 45px; border-radius: 50%; cursor: pointer; border: 3px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+    .btn-reset { width: 100%; padding: 15px; border: 1px solid #e74c3c; color: #e74c3c; background: transparent; border-radius: 12px; font-weight: bold; margin-top: 30px; cursor: pointer; }
+
+    .fab { position: fixed; bottom: 85px; right: 20px; width: 60px; height: 60px; background: #333; color: white; border-radius: 50%; border: none; font-size: 28px; box-shadow: 0 6px 20px rgba(0,0,0,0.3); z-index: 99; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 200; align-items: flex-end; }
+    .modal-content { background: var(--white); width: 100%; border-radius: 25px 25px 0 0; padding: 30px; animation: slideUp 0.3s; }
+    @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+
+    .form-group { margin-bottom: 15px; }
+    .input-box { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 12px; font-size: 1rem; background: #fafafa; }
+    .row { display: flex; gap: 10px; }
+    .btn-plus { width: 50px; background: #eee; border: none; border-radius: 12px; font-size: 1.2rem; cursor: pointer; }
+    .btn-submit { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 1rem; margin-top: 10px; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h3 id="page-title">KITA TABUNG</h3>
+  </div>
+
+  <div id="view-rekap" class="view active">
+    <div class="tabs">
+      <button class="tab-btn active" data-mode="realtime">Realtime</button>
+      <button class="tab-btn" data-mode="bulanan">Bulanan</button>
+    </div>
+
+    <div style="text-align:center; font-weight:bold; color:var(--primary); margin-bottom:10px;" id="date-label">...</div>
+    <select id="month-picker" class="input-box" style="display:none; margin-bottom:15px; text-align:center;"></select>
+
+    <div class="card chart-box">
+      <canvas id="chartCanvas"></canvas>
+      <div id="chart-msg" class="chart-err" style="display:none;">Belum ada pengeluaran</div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="card stat-item">
+        <span class="stat-label">Pemasukan</span>
+        <span class="stat-val inc" id="val-inc">Rp 0</span>
+      </div>
+      <div class="card stat-item">
+        <span class="stat-label">Pengeluaran</span>
+        <span class="stat-val exp" id="val-exp">Rp 0</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="view-tx" class="view">
+    <div id="list-tx" class="tx-list"></div>
+    <div id="empty-tx" style="text-align:center; margin-top:50px; color:gray;">Belum ada data</div>
+  </div>
+
+  <div id="view-acc" class="view">
+    <div id="list-acc" class="acc-grid"></div>
+  </div>
+
+  <div id="view-set" class="view">
+
+    <div class="card">
+      <h4 style="margin-top:0; text-align:center;">UBAH WARNA</h4>
+
+      <!-- Pilih warna sendiri (color picker) -->
+      <div style="margin-top:12px;">
+        <label style="font-size:0.8rem; font-weight:bold; display:block; margin-bottom:6px;">Custom warna utama</label>
+        <input type="color" id="theme-picker" class="input-box" style="height:52px; padding:10px; cursor:pointer;" value="#ff4081"/>
+        <div style="font-size:0.75rem; color:var(--gray); margin-top:8px; text-align:center;">
+          Tips: pilih warna favorit kamu, otomatis tersimpan.
+        </div>
+      </div>
+
+      <!-- Quick presets (tetap ada) -->
+      <div class="color-grid" style="margin-top:18px;">
+        <div class="color-dot" style="background:#ff4081;" data-theme="#ff4081" title="Pink"></div>
+        <div class="color-dot" style="background:#3498db;" data-theme="#3498db" title="Blue"></div>
+        <div class="color-dot" style="background:#2ecc71;" data-theme="#2ecc71" title="Green"></div>
+        <div class="color-dot" style="background:#9b59b6;" data-theme="#9b59b6" title="Purple"></div>
+        <div class="color-dot" style="background:#34495e;" data-theme="#34495e" title="Navy"></div>
+      </div>
+    </div>
+
+    
+    <div class="card">
+      <h4 style="margin-top:0; text-align:center;">Ikuti pembuatannya hehe</h4>
+      <div style="text-align:center; color:var(--gray); font-size:0.85rem; margin-top:6px;">
+       follow dong hehe</div>
+
+      <div style="display:flex; gap:12px; justify-content:center; margin-top:18px; flex-wrap:wrap;">
+        <button type="button" class="btn-submit" id="btn-ig" aria-label="Buka Instagram Pembuat"
+          style="width:56px; height:56px; padding:0; display:flex; align-items:center; justify-content:center; border-radius:50%; background:#E1306C;">
+          <i class="fa-brands fa-instagram" style="font-size:1.2rem;"></i></button>
+
+        <button type="button" class="btn-submit" id="btn-tg" aria-label="Buka Telegram Pembuat"
+          style="width:56px; height:56px; padding:0; display:flex; align-items:center; justify-content:center; border-radius:50%; background:#229ED9;">
+          <i class="fa-brands fa-telegram" style="font-size:1.2rem;"></i></button>
+      </div>
+
+      <div style="font-size:0.75rem; color:var(--gray); margin-top:12px; text-align:center;">
+       terbuka untuk aduan kamu
+      </div>
+    </div>
+
+    <button class="btn-reset" id="btn-reset">RESET DATA KAMU</button>
+
+</div>
+
+  <div class="nav">
+
+  <div class="nav">
+    <button class="nav-btn active" data-go="rekap">
+      <i class="fa-solid fa-chart-pie"></i> Rekap
+    </button>
+    <button class="nav-btn" data-go="tx">
+      <i class="fa-solid fa-list-ul"></i> Riwayat
+    </button>
+    <button class="nav-btn" data-go="acc">
+      <i class="fa-solid fa-wallet"></i> Rekening
+    </button>
+    <button class="nav-btn" data-go="set">
+      <i class="fa-solid fa-gear"></i> Setting
+    </button>
+  </div>
+
+  <button class="fab" id="fab">+</button>
+
+  <div class="modal" id="modal" role="dialog" aria-modal="true">
+    <div class="modal-content">
+      <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+        <h3 style="margin:0;" id="modal-title">Catat</h3>
+        <span id="modal-x" style="font-size:1.5rem; cursor:pointer;">&times;</span>
+      </div>
+
+      <form id="form-data">
+        <input type="hidden" id="edit-id" />
+
+        <div class="form-group">
+          <label style="font-size:0.8rem; font-weight:bold;">Tipe</label>
+          <select id="i-type" class="input-box">
+            <option value="expense">Pengeluaran</option>
+            <option value="income">Pemasukan</option>
+            <option value="transfer">Pindah Saldo</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label style="font-size:0.8rem; font-weight:bold;">Rekening</label>
+          <div class="row">
+            <select id="i-acc" class="input-box"></select>
+            <button type="button" class="btn-plus" id="btn-add-acc">+</button>
+          </div>
+        </div>
+
+        <!-- FITUR BARU: Pindah Saldo (Transfer antar rekening) -->
+        <div class="form-group" id="grp-acc-to" style="display:none;">
+          <label style="font-size:0.8rem; font-weight:bold;">Ke Rekening</label>
+          <select id="i-acc-to" class="input-box"></select>
+        </div>
+
+        <div class="form-group">
+          <input type="text" id="i-cat" class="input-box" placeholder="Untuk apa?" required />
+        </div>
+
+        <div class="form-group">
+          <input type="number" id="i-amt" class="input-box" placeholder="Jumlah (Rp)" required />
+        </div>
+
+        <div class="form-group">
+          <input type="date" id="i-date" class="input-box" required />
+        </div>
+
+        <button type="submit" class="btn-submit" id="btn-save">SIMPAN</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // ==========
+    // FIX UTAMA: file sebelumnya terpotong (JS tidak lengkap) -> bikin semua tombol "mati"
+    // Di versi ini, seluruh fungsi dilengkapi + event handler dibuat aman (tanpa mengandalkan global 'event')
+    // ==========
+
+    const DB_KEY = 'RESTORED_DATA_V1';
+    const ACC_KEY = 'RESTORED_ACC_V1';
+    const THEME_KEY = 'RESTORED_THEME';
+    
+
+    let db = [];
+    let accounts = ['Tunai', 'BCA', 'Mandiri', 'GoPay', 'Dana', 'ShopeePay'];
+    let mode = 'realtime';
+    let myChart = null;
+
+    // ---------- Utils ----------
+    const $ = (sel) => document.querySelector(sel);
+    const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+    function toRp(n) { return "Rp " + Number(n || 0).toLocaleString('id-ID'); }
+
+    function ymKey(dateStr) {
+      // Expect YYYY-MM-DD
+      return String(dateStr || '').slice(0, 7);
+    }
+
+    function safeLoad() {
+      try {
+        const d = localStorage.getItem(DB_KEY);
+        if (d) db = JSON.parse(d) || [];
+
+        const a = localStorage.getItem(ACC_KEY);
+        if (a) accounts = JSON.parse(a) || accounts;
+
+        const t = localStorage.getItem(THEME_KEY);
+        if (t) setTheme(t, false);
+        // sync color picker UI if exists
+        const tp = $('#theme-picker');
+        if (tp) {
+          const cur = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+          tp.value = cur || (t || '#ff4081');
+        }
+} catch (e) {
+        console.log("Storage Error: Mode Tanpa Penyimpanan", e);
+      }
+    }
+
+    function safeSave() {
+      try {
+        localStorage.setItem(DB_KEY, JSON.stringify(db));
+      } catch (e) {
+        alert("Peringatan: Data tidak tersimpan permanen karena browser memblokir penyimpanan.");
+      }
+    }
+
+    function safeSaveAccounts() {
+      try { localStorage.setItem(ACC_KEY, JSON.stringify(accounts)); } catch(e) {}
+    }
+
+    // ---------- Boot ----------
+    window.addEventListener('DOMContentLoaded', () => {
+      safeLoad();
+      wireUI();
+      populateMonths();
+      render();
+    });
+
+    function wireUI() {
+      // Bottom nav
+      $$('.nav-btn').forEach(btn => {
+        btn.addEventListener('click', () => go(btn.dataset.go));
+      });
+
+      // Tabs
+      $$('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => setMode(btn.dataset.mode, btn));
+      });
+
+      // Month picker
+      $('#month-picker').addEventListener('change', render);
+
+      // Theme dots
+      $$('.color-dot').forEach(dot => {
+        dot.addEventListener('click', () => setTheme(dot.dataset.theme));
+      });
+
+      // Reset
+      const br = $('#btn-reset');
+      if (br) br.addEventListener('click', hardReset);
+
+      // Theme picker (custom)
+      const tp = $('#theme-picker');
+      if (tp) {
+        tp.addEventListener('input', () => setTheme(tp.value));
+      }
+      // Contact buttons (pembuat)
+      const btnIg = $('#btn-ig');
+      if (btnIg) btnIg.addEventListener('click', () => openContact('ig'));
+
+      const btnTg = $('#btn-tg');
+      if (btnTg) btnTg.addEventListener('click', () => openContact('tg'));
+
+      // FAB + modal controls
+      $('#fab').addEventListener('click', modalOpen);
+      $('#modal-x').addEventListener('click', modalClose);
+      $('#modal').addEventListener('click', (e) => {
+        // close if click outside content
+        if (e.target.id === 'modal') modalClose();
+      });
+
+      // Form submit
+      $('#form-data').addEventListener('submit', onSubmit);
+
+      // Add account
+      $('#btn-add-acc').addEventListener('click', addAcc);
+
+      // Type hint
+      $('#i-type').addEventListener('change', hint);
+    }
+
+    // ---------- Navigation ----------
+    function go(pg) {
+      $$('.view').forEach(e => e.classList.remove('active'));
+      $('#view-' + pg).classList.add('active');
+
+      $$('.nav-btn').forEach(e => e.classList.remove('active'));
+      const idx = ({ rekap:0, tx:1, acc:2, set:3 })[pg];
+      const btns = $$('.nav-btn');
+      if (btns[idx]) btns[idx].classList.add('active');
+
+      const titles = { rekap:'Rekap Keuangan', tx:'Riwayat Transaksi', acc:'Saldo Rekening', set:'Pengaturan' };
+      $('#page-title').innerText = titles[pg] || 'Keuangan Pro';
+    }
+
+    function setMode(m, btnEl) {
+      mode = m;
+      $$('.tab-btn').forEach(b => b.classList.remove('active'));
+      if (btnEl) btnEl.classList.add('active');
+      $('#month-picker').style.display = (m === 'bulanan') ? 'block' : 'none';
+      render();
+    }
+
+    function setTheme(c, persist = true) {
+      document.documentElement.style.setProperty('--primary', c);
+      if (!persist) { const tp = $('#theme-picker'); if (tp) tp.value = c; return; }
+      try { localStorage.setItem(THEME_KEY, c); } catch (e) {}
+      const tp = $('#theme-picker'); if (tp) tp.value = c;
+    }
+    function openContact(kind) {
+      const IG_OWNER = 'xdaniel04';
+      const TG_OWNER = 'xdaniel04';
+
+      if (kind === 'ig') {
+        window.open('https://www.instagram.com/' + encodeURIComponent(IG_OWNER) + '/', '_blank', 'noopener');
+      } else if (kind === 'tg') {
+        window.open('https://t.me/' + encodeURIComponent(TG_OWNER), '_blank', 'noopener');
+      }
+    }
+
+
+
+
+    // ---------- Modal ----------
+    function modalOpen() {
+      $('#modal').style.display = 'flex';
+      $('#form-data').reset();
+      $('#edit-id').value = '';
+      $('#modal-title').innerText = "Catat Baru";
+      $('#btn-save').innerText = "SIMPAN";
+
+      // Auto date today
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth()+1).padStart(2,'0');
+      const d = String(now.getDate()).padStart(2,'0');
+      $('#i-date').value = `${y}-${m}-${d}`;
+
+      loadAccOpts();
+      hint();
+    }
+
+    function modalClose() {
+      $('#modal').style.display = 'none';
+    }
+
+    function loadAccOpts(selectedFrom, selectedTo) {
+      const selFrom = $('#i-acc');
+      selFrom.innerHTML = accounts.map(a => `<option value="${escapeHtml(a)}">${escapeHtml(a)}</option>`).join('');
+      if (selectedFrom && accounts.includes(selectedFrom)) selFrom.value = selectedFrom;
+
+      // untuk transfer: rekening tujuan
+      const selTo = $('#i-acc-to');
+      if (selTo) {
+        selTo.innerHTML = accounts.map(a => `<option value="${escapeHtml(a)}">${escapeHtml(a)}</option>`).join('');
+        if (selectedTo && accounts.includes(selectedTo)) selTo.value = selectedTo;
+        else {
+          const fromVal = selFrom.value;
+          const alt = accounts.find(a => a !== fromVal) || fromVal;
+          selTo.value = alt;
+        }
+      }
+    }
+
+    function addAcc() {
+      const n = prompt("Nama Akun Baru:");
+      if (!n) return;
+      const name = n.trim();
+      if (!name) return;
+      if (accounts.includes(name)) return alert("Akun sudah ada.");
+      accounts.push(name);
+      safeSaveAccounts();
+      loadAccOpts(name);
+      renderAcc();
+    }
+
+    function hint() {
+      const t = $('#i-type').value;
+      const grpTo = $('#grp-acc-to');
+      const cat = $('#i-cat');
+
+      if (t === 'income') {
+        if (cat) cat.placeholder = "Sumber pemasukan (mis. Gaji, Penjualan)";
+        if (grpTo) grpTo.style.display = 'none';
+      } else if (t === 'expense') {
+        if (cat) cat.placeholder = "Untuk apa? (mis. Makan, Transport)";
+        if (grpTo) grpTo.style.display = 'none';
+      } else if (t === 'transfer') {
+        if (cat) cat.placeholder = "Keterangan (mis. Pindah saldo)";
+        if (grpTo) grpTo.style.display = 'block';
+        loadAccOpts($('#i-acc').value, $('#i-acc-to')?.value);
+      }
+    }
+
+    // ---------- Data ops ----------
+    function nextId() {
+      // avoid collision
+      let id = Date.now();
+      while (db.some(x => x.id === id)) id++;
+      return id;
+    }
+
+    function onSubmit(e) {
+      e.preventDefault();
+
+      const type = $('#i-type').value;
+      const idRaw = $('#edit-id').value;
+
+      const payload = {
+        id: idRaw ? Number(idRaw) : nextId(),
+        type,
+        acc: $('#i-acc').value,
+        cat: $('#i-cat').value.trim(),
+        amt: Number($('#i-amt').value || 0),
+        date: $('#i-date').value
+      };
+
+      // tambahan untuk transfer
+      if (type === 'transfer') {
+        payload.accTo = $('#i-acc-to') ? $('#i-acc-to').value : '';
+        if (!payload.cat) payload.cat = 'Pindah Saldo';
+      }
+
+      if (!payload.cat) return alert("Kategori/Deskripsi wajib diisi.");
+      if (!payload.date) return alert("Tanggal wajib diisi.");
+      if (!payload.amt || payload.amt <= 0) return alert("Jumlah harus > 0.");
+
+      if (type === 'transfer') {
+        if (!payload.accTo) return alert("Rekening tujuan wajib diisi.");
+        if (payload.acc === payload.accTo) return alert("Rekening asal & tujuan tidak boleh sama.");
+      }
+
+      const idx = db.findIndex(x => x.id === payload.id);
+      if (idx >= 0) db[idx] = payload;
+      else db.push(payload);
+
+      safeSave();
+      populateMonths(); // months may change if new date entered
+      render();
+      modalClose();
+    }
+
+    function editData(id) {
+      const x = db.find(d => d.id === id);
+      if (!x) return;
+
+      modalOpen();
+      $('#modal-title').innerText = "Edit Transaksi";
+      $('#btn-save').innerText = "UPDATE";
+
+      $('#edit-id').value = x.id;
+      $('#i-type').value = x.type;
+      loadAccOpts(x.acc, x.accTo);
+      $('#i-cat').value = x.cat;
+      $('#i-amt').value = x.amt;
+      $('#i-date').value = x.date;
+      hint();
+    }
+
+    function delData(id) {
+      const x = db.find(d => d.id === id);
+      if (!x) return;
+
+      const ok = confirm(`Hapus transaksi "${x.cat}" (${toRp(x.amt)})?`);
+      if (!ok) return;
+
+      db = db.filter(d => d.id !== id);
+      safeSave();
+      populateMonths();
+      render();
+    }
+
+    function hardReset() {
+      const ok = confirm("RESET TOTAL: Hapus semua data transaksi? (Tidak bisa dibatalkan)");
+      if (!ok) return;
+
+      db = [];
+      safeSave();
+      populateMonths();
+      if (myChart) { try { myChart.destroy(); } catch(e) {} myChart = null; }
+      render();
+      go('rekap');
+    }
+
+    // expose for inline buttons created via innerHTML
+    window.editData = editData;
+    window.delData = delData;
+
+    // ---------- Months ----------
+    function populateMonths() {
+      const set = new Set();
+      const now = new Date();
+      set.add(`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`);
+      db.forEach(x => { if (x.date) set.add(ymKey(x.date)); });
+
+      const list = Array.from(set).filter(Boolean).sort().reverse();
+      const picker = $('#month-picker');
+
+      picker.innerHTML = list.map(k => `<option value="${k}">${k}</option>`).join('');
+      // Keep selection if possible, else choose first
+      const cur = picker.value;
+      if (cur && list.includes(cur)) picker.value = cur;
+      else picker.value = list[0] || `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+    }
+
+    // ---------- Render ----------
+    function render() {
+      renderRekap();
+      renderTx();
+      renderAcc();
+    }
+
+    function renderRekap() {
+      let filtered = [];
+      let label = "";
+
+      if (mode === 'realtime') {
+        const now = new Date();
+        const key = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+        filtered = db.filter(x => ymKey(x.date) === key);
+        label = now.toLocaleDateString('id-ID', { month:'long', year:'numeric' });
+      } else {
+        const key = $('#month-picker').value;
+        filtered = db.filter(x => ymKey(x.date) === key);
+        label = "Arsip: " + (key || '-');
+      }
+      $('#date-label').innerText = label;
+
+      let inc = 0, exp = 0;
+      const cats = {};
+
+      filtered.forEach(x => {
+        const n = Number(x.amt || 0);
+
+        // transfer tidak masuk perhitungan pemasukan/pengeluaran
+        if (x.type === 'transfer') return;
+
+        if (x.type === 'income') inc += n;
+        else {
+          exp += n;
+          cats[x.cat] = (cats[x.cat] || 0) + n;
+        }
+      });
+
+      $('#val-inc').innerText = toRp(inc);
+      $('#val-exp').innerText = toRp(exp);
+
+      drawChart(cats, exp);
+    }
+
+    function drawChart(cats, total) {
+      const canvas = $('#chartCanvas');
+      const msg = $('#chart-msg');
+
+      if (typeof Chart === 'undefined') {
+        msg.style.display = 'block';
+        msg.innerText = "Grafik tidak tersedia (Offline)";
+        canvas.style.display = 'none';
+        return;
+      }
+
+      if (myChart) { try { myChart.destroy(); } catch(e) {} }
+
+      if (total === 0) {
+        canvas.style.display = 'none';
+        msg.style.display = 'block';
+        msg.innerText = "Belum ada pengeluaran";
+        return;
+      }
+
+      canvas.style.display = 'block';
+      msg.style.display = 'none';
+
+      const ctx = canvas.getContext('2d');
+      const labels = Object.keys(cats);
+      const values = Object.values(cats);
+
+      myChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels,
+          datasets: [{
+            data: values,
+            backgroundColor: ['#ff4081', '#3b82f6', '#f1c40f', '#2ecc71', '#9b59b6', '#34495e', '#e67e22'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position:'bottom' } }
+        }
+      });
+    }
+
+    function renderTx() {
+      const list = $('#list-tx');
+      list.innerHTML = '';
+
+      const sorted = [...db].sort((a,b) => new Date(b.date) - new Date(a.date));
+
+      if (sorted.length === 0) {
+        $('#empty-tx').style.display = 'block';
+        return;
+      }
+      $('#empty-tx').style.display = 'none';
+
+      let lastD = '';
+      sorted.forEach(x => {
+        const dStr = new Date(x.date).toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'short', year:'numeric' });
+        if (dStr !== lastD) {
+          list.insertAdjacentHTML('beforeend', `<div class="date-head">${escapeHtml(dStr)}</div>`);
+          lastD = dStr;
+        }
+
+        // Tampilan khusus untuk TRANSFER
+        if (x.type === 'transfer') {
+          const from = x.acc || '-';
+          const to = x.accTo || '-';
+          list.insertAdjacentHTML('beforeend', `
+            <div class="tx-item transfer" style="border-left-color:#95a5a6;">
+              <div class="tx-left">
+                <h4>${escapeHtml(x.cat || 'Pindah Saldo')}</h4>
+                <span>${escapeHtml(from)} → ${escapeHtml(to)}</span>
+              </div>
+              <div class="tx-right">
+                <div class="tx-amt" style="color:#7f8c8d;">↔ ${Number(x.amt||0).toLocaleString('id-ID')}</div>
+                <div class="tx-acts">
+                  <button class="btn-act" style="color:blue" onclick="editData(${x.id})" aria-label="Edit"><i class="fa-solid fa-pen"></i></button>
+                  <button class="btn-act" style="color:red" onclick="delData(${x.id})" aria-label="Hapus"><i class="fa-solid fa-trash"></i></button>
+                </div>
+              </div>
+            </div>
+          `);
+          return;
+        }
+
+        const col = x.type === 'income' ? '#2ecc71' : '#e74c3c';
+        const sgn = x.type === 'income' ? '+' : '-';
+
+        list.insertAdjacentHTML('beforeend', `
+          <div class="tx-item ${escapeHtml(x.type)}">
+            <div class="tx-left">
+              <h4>${escapeHtml(x.cat)}</h4>
+              <span>${escapeHtml(x.acc || '-')}</span>
+            </div>
+            <div class="tx-right">
+              <div class="tx-amt" style="color:${col}">${sgn} ${Number(x.amt||0).toLocaleString('id-ID')}</div>
+              <div class="tx-acts">
+                <button class="btn-act" style="color:blue" onclick="editData(${x.id})" aria-label="Edit"><i class="fa-solid fa-pen"></i></button>
+                <button class="btn-act" style="color:red" onclick="delData(${x.id})" aria-label="Hapus"><i class="fa-solid fa-trash"></i></button>
+              </div>
+            </div>
+          </div>
+        `);
+      });
+    }
+
+    function renderAcc() {
+      const grid = $('#list-acc');
+      grid.innerHTML = '';
+
+      const bals = {};
+      accounts.forEach(a => bals[a] = 0);
+
+      db.forEach(x => {
+        const n = Number(x.amt || 0);
+        if (bals[x.acc] === undefined) bals[x.acc] = 0;
+
+        if (x.type === 'income') {
+          bals[x.acc] += n;
+        } else if (x.type === 'expense') {
+          bals[x.acc] -= n;
+        } else if (x.type === 'transfer') {
+          const to = x.accTo;
+          if (to) {
+            if (bals[to] === undefined) bals[to] = 0;
+            bals[x.acc] -= n;
+            bals[to] += n;
+          }
+        }
+      });
+
+      Object.keys(bals).forEach(a => {
+        if (bals[a] !== 0 || accounts.includes(a)) {
+          grid.insertAdjacentHTML('beforeend', `
+            <div class="acc-card">
+              <h4>${escapeHtml(a)}</h4>
+              <div class="acc-bal">${toRp(bals[a])}</div>
+              <i class="fa-solid fa-wallet acc-icon"></i>
+            </div>
+          `);
+        }
+      });
+    }
+
+    
+    // ---------- Simple Base64 helpers (obfuscation) ----------
+    function b64e(s) {
+      try { return btoa(unescape(encodeURIComponent(String(s || '')))); } catch(e) { return ''; }
+    }
+    function b64d(s) {
+      try { return decodeURIComponent(escape(atob(String(s || '')))); } catch(e) { return ''; }
+    }
+
+// ---------- XSS safety for dynamic HTML ----------
+    function escapeHtml(s) {
+      return String(s ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+  </script>
+</body>
+</html>
